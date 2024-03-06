@@ -2,17 +2,20 @@ body,
 html {
     margin: 0;
     padding: 0;
-    font-family: "Gotham Rounded";
+    font-family: "Traffolight";
+}
+
+@font-face {
+    font-family: "Traffolight";
+    src: url("../fonts/Traffolight.otf")
 }
 
 .top-nav {
     font-family: inherit;
     font-size: 20px;
     color: black;
+    padding: 20px 0;
     background-color: #009dc2;
-    text-align: center;
-    padding: 20px 20px;
-    justify-content: center;
     border-bottom: 1px ridge #67bfd5;
 
 
@@ -20,8 +23,9 @@ html {
         list-style-type: none;
         margin: 0 0;
         overflow: hidden;
-        justify-self: center;
-        padding-left: 3px;
+        text-align: center;
+        padding-inline-start: 0;
+        
 
 
         li {
@@ -69,8 +73,8 @@ html {
 
 #home-text-overlay {
     position: absolute;
-    top: 36%;
-    left: 50%;
+    top: 37%;
+    left: 52%;
     transform: translate(-50%, -50%);
     flex: flex;
     align-items: center;
@@ -175,8 +179,7 @@ img {
     padding: 5 0;
 }
 
-#next-button {
-    font-family: "Gotham Rounded";
+#selector-button {
     position: relative;
     margin-top: 20px;
     left: 50%;
