@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <html lang="en">
+    <link href="../static/css/style.css" type="text/css" rel="stylesheet" />
+    <link href="../static/css/prism.css" rel="stylesheet" />
+    <script src="../static/js/prism.js"></script>
+    <script src="../static/js/models-content.js"></script>
+</head>
+
+<body>
+    <div id="navbar">
+    </div>
+    <script src="../static/js/nav.js"></script>
+
+    <div id="body-container">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const savedSection = sessionStorage.getItem('currentSection');
+            if (savedSection) {
+                currentSection = parseInt(savedSection, 10);
+                loadSection(currentSection);
+            } else {
+
+                loadSection(1);
+            }
+        });
+    </script>
+</body>

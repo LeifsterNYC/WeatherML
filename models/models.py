@@ -34,12 +34,6 @@ pred_date_str = '2021-06-02'
 pred_date = pd.to_datetime(pred_date_str)
 formatted_date = pred_date.strftime('%B %dth, %Y')
 
-# X_pred = pd.DataFrame({
-#     'Days_Since_Start': [df.loc[pred_date, 'Days_Since_Start']],
-#     'Tmax_lag1': [df.loc[pred_date, 'Tmax_lag1']],
-#     'Tmin_lag1': [df.loc[pred_date, 'Tmin_lag1']]
-# })
-
 X_pred = pd.DataFrame({
     'Days_Since_Start': [df.loc[pred_date, 'Days_Since_Start']],
     'Tmax_lag1': [df.loc[pred_date, 'Tmax_lag1']],

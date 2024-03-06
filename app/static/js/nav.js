@@ -5,14 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.text())
             .then(data => {
                 navBarContainer.innerHTML = data;
-                const navLinks = document.querySelectorAll(".top-nav a");
+                const currentPath = window.location.pathname;
+                const navLinks = document.querySelectorAll('.top-nav a');
                 navLinks.forEach(link => {
-                    link.addEventListener("click", function (event) {
-                        navLinks.forEach(navLink => {
-                            navLink.classList.remove("active");
-                        });
-                        link.classList.add("active");
-                    });
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
                 });
             });
     }
