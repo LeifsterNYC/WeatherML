@@ -17,6 +17,7 @@ function loadSection(section) {
         .then(html => {
             document.getElementById('body-container').innerHTML = html;
             Prism.highlightAll()
+            initDivider()
         })
         .catch(error => {
             console.error('Error loading section:', error);
