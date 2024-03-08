@@ -1,31 +1,167 @@
 <!DOCTYPE html>
 <div id="body-container">
-    <header class="model-header">
-        <h1>Welcome to the Ithaca Weather Data Tour</h1>
-        <p>Explore the dynamics of weather patterns through our machine learning models.</p>
-    </header>
     <div id="panel-container">
         <div class="left-panel">
             <div class="content">
-                <h1>Introduction</h2>
-                <p>
-                    Machine Learning, particularly through innovations like GraphCast, is transforming weather
-                    forecasting by leveraging vast data sets to predict complex weather patterns, outperforming
-                    traditional deterministic models. Unlike conventional methods that rely on fixed equations, ML
-                    models like GraphCast analyze historical and current data to uncover hidden patterns, offering more
-                    accurate and dynamic forecasts. This capability is especially crucial for predicting extreme weather
-                    events, where traditional models fall short. The success of ML in this domain not only represents a
-                    leap forward in predictive accuracy but also highlights the potential for significant advancements
-                    in fields reliant on weather forecasting, underscoring the growing importance of data-driven
-                    approaches in understanding and predicting natural phenomena.</p>
-                    <div class = "button-container">
-                <button class=selector-button onclick="loadSection(2)">&gt;</button></div>
-            </div>
+                <h1>Correlation and Linear Regression</h2>
+                    <p>Linear regression is a statistical method utilized for predicting a dependent variable, such as a
+                        specific weather condition, based on one or more independent variables. It aims to establish a
+                        linear relationship between these variables, providing a straightforward approach to forecasting
+                        weather phenomena like temperature, humidity, or precipitation levels based on historical data
+                        and trends. Basic linear regression isn't great for time series data because, first off, it
+                        overlooks how past events can influence future ones, which is pretty common in time series like
+                        weather or stock prices. It doesn't really get seasonal patterns or cycles, which we often see
+                        in time-related data. And lastly, it assumes things stay consistent over time, but in real-life,
+                        the way stuff relates in time series can change a lot.
+                    </p>
+                    <h2> Pros:
+                    </h2>
 
+                    <ul>
+                        <li><b>Simplicity:</b> Models are straightforward to understand and
+                            interpret</li>
+                        <li><b>Speed:</b> Linear regression models are quick to develop and require less computational
+                            resources than more complex models</li>
+                        <li><b>Establishes Relationships:</b> Helpful in understanding how various weather factors are
+                            linearly related to each other</li>
+                    </ul>
+                    <h2>Cons:</h2>
+
+
+                    <ul>
+                        <li><b>Linearity:</b> Assumes a linear relationship between variables, which may not accurately
+                            reflect complex weather dynamics</li>
+                        <li><b>Over-simplification:</b> Might not capture intricate patterns, interactions, or
+                            non-linear
+                            relationships present in weather data.</li>
+                        <li><b>Assumptions:</b> Requires that residuals (errors) be normally distributed and
+                            independent,
+                            which often doesn't hold true in weather data</li>
+                    </ul>
+                    <p>We're going to use linear regression to identify relationships between our variables. But first,
+                        let's clean the data and plot the correlation matrix. You can see the graph on the right panel
+                        of the page. I chose the values that I thought would be the most helpful, without crowding the
+                        matrix. Use the buttons to cycle through the graphs, but don't go too far ahead! Do you
+                        notice any correlations? As a reminder, a negative number means that two variables move in
+                        opposite directions, while a positive number means that two variables move in the same
+                        direction. The higher the absolute value, the stronger the correlation.</p>
+                    <span class="code-subtext">// A sample of our data</span>
+                    <pre><code class = "language-csv">CET,Max TemperatureC,Mean TemperatureC,Min TemperatureC,Dew PointC,MeanDew PointC,Min DewpointC,Max Humidity, Mean Humidity, Min Humidity, Max Sea Level PressurehPa, Mean Sea Level PressurehPa, Min Sea Level PressurehPa, Max VisibilityKm, Mean VisibilityKm, Min VisibilitykM, Max Wind SpeedKm/h, Mean Wind SpeedKm/h, Max Gust SpeedKm/h,Precipitationmm, CloudCover, Events,WindDirDegrees
+1997-01-23,12,10,9,10,9,9,100,96,82,1018,1014,1013,10,8,4,10,5,,0,7,Rain,29</code></pre>
+                    <span class="code-subtext">// Loading in our data and plotting the correlation matrix</span>
+                    <pre><code class="language-python">import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.read_csv('data/data2.csv')  
+df.dropna(inplace=True) # Drop any NaN values from the dataset
+df = df[df['Max Wind Speed'] &lt;= 150] # Remove wind speeds higher than 150 km/h, as analyzed by box plot
+df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']] = df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']].apply(lambda c: (c * 9/5) + 32)
+df[['Mean Visibility', 'Max Wind Speed']] = df[['Mean Visibility', 'Max Wind Speed']].apply(lambda km: km * 0.621371)
+df['Precipitation'] = df['Precipitation'].apply(lambda mm: mm * .0393701) # Apply unit conversions to data we'll be using
+corr_matrix = df.corr()
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', square=True)
+plt.show() # For your own code</pre></code>
+
+
+                    <p>
+                        There are so many correlations to choose from!
+                        A few to note:
+                    </p>
+                    <ul>
+                        <li>A strong negative correlation between Max Wind Speed and Mean SLP -- likely the result of
+                            low pressure systems bringing strong winds!
+
+                        </li>
+                        <li>A moderate negative correlation between Mean Temperature and Cloud Cover (meaning average
+                            Cloud Cover over a whole day)-- clouds deflect
+                            the sun from warming the earth during the day, but I wonder what it would look like if
+                            analyzed by Min Temperature on winter nights...</li>
+                        <li>A moderate-strong positive correlation between Humidity and Cloud Cover -- this makes sense,
+                            after all clouds are made of water.</li>
+                    </ul>
+                    <span class="code-subtext">// Importing data, converting to datetime, and creating lag
+                        feature</span>
+                    <p>
+                        Let's try using linear regression to use the relationship between these variables to predict the
+                        mean temperature, our target variable. We will exclude other temperature data in our features,
+                        but keep dewpoint
+                        despite its close relation to temperature. We select our features and place them in a DataFrame
+                        named X, and our target goes in y. We then use sklearn's train_test_split to randomly split our
+                        data into training and testing sets. It is important that this is done at random to ensure that
+                        both sets are representative of the overall dataset, which helps in evaluating the model's
+                        performance objectively and avoiding biased estimates due to any ordering in the data.
+                    </p>
+                    <p>
+                        Splitting data randomly for training and testing differs from time series analysis, where data
+                        is split based on time to preserve the chronological order. In time series analysis, the test
+                        set typically consists of the most recent data, reflecting how forecasts are made into the
+                        future. We'll try time series analysis later. For now, we just want to understand the
+                        relationship between different climate variables.
+                    </p>
+                    <pre><code class="language-python">X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature', 'Mean Dewpoint'], axis = 1)
+y = df_cleaned['Mean Temperature']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44) # Programming randomness is pseudorandom. You can reproduce the shuffle with the same random_state. 
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)</pre></code>
+                    <p>Now let's calculate some error metrics. Most commonly, we use the Mean Absolute and Mean Squared
+                        errors for linear regression. The Mean Absolute Error (MAE) represents the average of the
+                        absolute differences between
+                        predicted values and actual values, offering a straightforward measure of prediction accuracy
+                        without emphasizing outliers. The Mean Squared Error (MSE) calculates the average of the squares
+                        of the differences between predicted and actual values, giving more weight to larger errors and
+                        typically highlighting model performance on data with significant variations. </p>
+                    <pre><code class="language-python">from sklearn.metrics import mean_squared_error, mean_absolute_error
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)</pre></code>
+                    <p>We can now plot the "perfect prediction" line, i.e. predicted = actual, on a scatter plot with
+                        each point representing an observation. The x-axis is our predicted temperature, while the
+                        y-axis is our actual temperature for the observation. Points closer to the diagonal line
+                        indicate accurate predictions, while points farther from the line highlight larger discrepancies
+                        between predicted and actual values. Note that this projection has nothing to do with time. We
+                        have scrambled the dataset to analyze relationships between weather metrics. The error metrics
+                        are on the bottom right.</p>
+                    <pre><code class="language-python">plt.figure(figsize=(7,7)) 
+plt.scatter(y_test, y_pred, alpha=0.5, label='Predicted vs Actual')
+plt.xlabel('Actual Mean Temperature (C)')  
+plt.ylabel('Predicted Mean Temperature (C)')  
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2, label='Perfect Prediction')
+plt.text(0.95, 0.05, f'MAE: {mae:.2f}\nMSE: {mse:.2f}',
+         fontsize=12, color='darkgreen', horizontalalignment='right', verticalalignment='bottom', 
+         transform=plt.gca().transAxes)
+plt.title('Comparison of Actual and Predicted Mean Temperatures')
+plt.legend()</pre></code>
+                    <p>Our predictions are remarkably accurate! To note, though, our predictions are too low as the
+                        temperatures nears 30 degrees Celsius. Why might this be? Let's try removing the dewpoint metric
+                        and seeing if we maintain this accuracy.</p>
+                    <pre><code class="language-python">X.drop(['Mean Dewpoint'])</pre></code>
+                    <span class="code-subtext">// Split the data, fit the line and predict again! </span>
+                    <p>This prediction wasn't quite as good. It turns out that the dewpoint's strong correlation with
+                        our target variable was important to our linear regression model. Let's try predicting mean
+                        MSLP.</p>
+                    <pre><code class="language-python">X = df_cleaned.drop(['Mean Sea Level Pressure'], axis = 1)
+y = df_cleaned['Mean Sea Level Pressure']</pre></code>
+                    <p>Not great, but not horrible. Important note: do not evaluate our error metrics simply based on
+                        magnitude. It
+                        must be considered in relation to the scale of the target variable and in comparison to other
+                        models. Let's move onto using linear regression to actually predict time series data.</p>
+
+            </div>
+            <div class="button-container">
+                <button class=selector-button onclick="loadSection(0)">&lt;</button>
+                <button class=selector-button onclick="loadSection(2)">&gt;</button>
+            </div>
         </div>
         <div class="right-panel">
             <div class="content">
-                <img src="../../static/img/graphcast.png"></img>
+                <h1>Data Visualization</h1>
+                <iframe id=graphFrame width="80%" height="720">
+                </iframe>
+                <div class="button-container">
+                    <button class=selector-button id="graph-lr-left" onclick="loadPreviousGraph()">&lt;</button>
+                    <button class=selector-button id="graph-lr-right" onclick="loadNextGraph()">&gt;</button>
+                </div>
             </div>
         </div>
     </div>

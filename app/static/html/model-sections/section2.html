@@ -3,99 +3,20 @@
     <div id="panel-container">
         <div class="left-panel">
             <div class="content">
-                <h1>Linear Regression</h2>
-                    <p>Linear regression is a statistical method utilized for predicting a dependent variable, such as a
-                        specific weather condition, based on one or more independent variables. It aims to establish a
-                        linear relationship between these variables, providing a straightforward approach to forecasting
-                        weather phenomena like temperature, humidity, or precipitation levels based on historical data
-                        and
-                        trends.
-                    </p>
-                    <h2> Pros:
-                    </h2>
-
-                    <ul>
-                        <li><b>Simplicity:</b> Models are straightforward to understand and
-                            interpret</li>
-                        <li><b>Speed:</b> Linear regression models are quick to develop and require less computational
-                            resources than more complex models</li>
-                        <li><b>Establishes Relationships:</b> Helpful in understanding how various weather factors are
-                            linearly related to each other</li>
-                    </ul>
-                    <h2>Cons:</h2>
-
-
-                    <ul>
-                        <li><b>Linearity:</b> Assumes a linear relationship between variables, which may not accurately
-                            reflect complex weather dynamics</li>
-                        <li><b>Over-simplification:</b> Might not capture intricate patterns, interactions, or
-                            non-linear
-                            relationships present in weather data.</li>
-                        <li><b>Assumptions:</b> Requires that residuals (errors) be normally distributed and
-                            independent,
-                            which often doesn't hold true in weather data</li>
-                    </ul>
-                    <p>We'll start by setting up the basic framework needed to perform a Linear Regression analysis.
-                        This involves preparing our data, understanding the relationship between our independent
-                        (predictor) and dependent (outcome) variables, and learning how to interpret the results our
-                        model provides us.</p>
-                    <span class="code-subtext">// Importing necessary libraries</span>
-                    <pre><code class="language-python">import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, mean_absolute_error</pre></code>
-
+                <h1>Linear Regression for Time Series</h2>
                     <p>
-                        Our first example will include temperature range data from a weather station in Ithaca from
-                        2010-2024.
-                        This isn't a lot of data, but as you will see, we can still make meaningful predictions of the
-                        temperature. We will start with the lag-1 daily maximum temperature, meaning the previous day's
-                        temperature, as our feature to
-                        predict the daily maximum temperature.
                     </p>
-                    <span class="code-subtext">// A sample of our data</span>
-                    <pre><code class ="language-csv">"Station","Name","Date","Tmax","Tmin"
-"USC00304174","ITHACA CORNELL UNIVERSITY, NY US","2010-03-06","36","6"</pre></code>
-                    <span class="code-subtext">// Importing data, converting to datetime, and creating lag
-                        feature</span>
-                    <pre><code class="language-python">df = pd.read_csv('data/data1.csv')
-df['Date'] = pd.to_datetime(df['Date'])
-df.set_index('Date', inplace=True)          
-
-df['Tmax_lag1'] = df['Tmax'].shift(1)
-df['Tmin_lag1'] = df['Tmin'].shift(1)
-df.dropna(inplace=True) # We remove the NaN values created by introducing the lag feature </pre></code>
-                    <p>
-                        We will now setup a training set and a testing set. Separating data into training and test sets
-                        allows for the evaluation of a model's performance on unseen data, ensuring it generalizes well
-                        beyond the data it was trained on. For time series, data is chronologically ordered, so we split
-                        based on time to maintain that. Commonly, a final section of a time series dataset is left for
-                        testing. Let's select the last 60 days.
-                    </p>
-                    <pre><code class="language-python">num_days = 60
-train_df = df[:-num_days]
-test_df = df[-num_days:]
-
-X_train = train_df[['Tmax_lag1']] # X is our feature(s)
-y_train = train_df['Tmax'] # y is our dependent variable
-X_test = test_df[['Tmin_lag1']] 
-y_test = test_df['Tmax']
-
-model = LinearRegression()
-model.fit(X_train, y_train)</pre></code>
-            </div>
-            <div class="button-container">
-                <button class=selector-button onclick="loadSection(1)">&lt;</button>
-                <button class=selector-button onclick="loadSection(3)">&gt;</button>
+                    <div class="button-container">
+                        <button class=selector-button onclick="loadSection(1)">&lt;</button>
+                        <button class=selector-button onclick="loadSection(3)">&gt;</button>
+                    </div>
             </div>
         </div>
-        <div class="right-panel">
-            <div class="content">
-                <h1>Data Visualization</h1>
 
-                <iframe src="../../static/html/graphs/g1.html" width="80%" height="720">
-                </iframe>
-
-            </div>
+    </div>
+    <div class="right-panel">
+        <div class="content">
         </div>
     </div>
+</div>
 </div>

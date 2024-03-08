@@ -1,5 +1,6 @@
 let currentSection = 0;
 let oldCurrentSection = 0;
+let sections = ['about', 'lr'];
 function loadSection(section) {
     oldCurrentSection = currentSection;
     currentSection = section;
@@ -16,11 +17,62 @@ function loadSection(section) {
         })
         .then(html => {
             document.getElementById('body-container').innerHTML = html;
-            Prism.highlightAll()
-            initDivider()
+            Prism.highlightAll();
+            newSection(sections[currentSection]);
+            loadGraph(1);
+            console.log(sections[currentSection]);
         })
         .catch(error => {
             console.error('Error loading section:', error);
 
         });
 }
+
+let currentGraph = 1;
+let oldCurrentGraph = 1;
+let currentSectionName = 'about';
+
+const sectionGraphs = {
+    about: ['item1', 'item2', 'item3'],
+    lr: ['lr1.png', 'lr2.html', 'lr3.html', 'lr4.html']
+};
+
+function loadGraph(g) {
+    currentGraph = g;
+    file = sectionGraphs[currentSectionName][currentGraph - 1];
+    const fileName = `static/graphs/${file}`;
+    fetch(fileName)
+        .then(response => {
+            if (!response.ok) {
+                currentGraph = oldCurrentGraph;
+                throw new Error('No more Graphs.');
+            }
+            document.getElementById(`graph-${currentSectionName}-left`).style.visibility = currentGraph > 1 ? 'visible' : 'hidden';
+            document.getElementById(`graph-${currentSectionName}-right`).style.visibility = currentGraph < sectionGraphs[currentSectionName].length ? 'visible' : 'hidden';
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('graphFrame').setAttribute("src", fileName);
+            oldCurrentGraph = g;
+        })
+        .catch(error => {
+            console.error('Error loading Graph:', error);
+
+        });
+}
+
+function loadPreviousGraph() {
+    loadGraph(currentGraph - 1)
+}
+
+function loadNextGraph() {
+    loadGraph(currentGraph + 1)
+}
+function newSection(section) {
+    currentGraph = 1;
+    oldCurrentGraph = 1;
+    currentSectionName = section;
+}
+
+
+
