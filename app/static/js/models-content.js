@@ -34,7 +34,7 @@ let currentSectionName = 'about';
 
 const sectionGraphs = {
     about: ['item1', 'item2', 'item3'],
-    lr: ['lr1.png', 'lr2.html', 'lr3.html', 'lr4.html']
+    lr: ['lr1.html', 'lr2.html', 'lr3.html', 'lr4.html']
 };
 
 function loadGraph(g) {
