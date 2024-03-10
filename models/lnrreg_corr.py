@@ -40,7 +40,7 @@ fig.update_layout(
 )
 
 fig.update_xaxes(side="bottom")
-pio.write_html(fig, 'app/static/graphs/lr1.html', config={'responsive': True})
+pio.write_html(fig, 'app/static/graphs/lrts1.html', config={'responsive': True})
 
 X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature'], axis = 1)
 y = df_cleaned['Mean Temperature']

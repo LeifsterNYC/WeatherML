@@ -1,4 +1,4 @@
-CET,Max Temperature,Mean Temperature,Min Temperature,Dew Point,Mean Dewpoint,Min Dewpoint,Max Humidity,Mean Humidity,Min Humidity,Max Sea Level Pressure,Mean Sea Level Pressure,Min Sea Level Pressure, Max Visibility,Mean Visibility,Min Visibility,Max Wind Speed,Mean Wind Speed,Max Gust Speed,Precipitation,CloudCover,Events,WindDirDegrees
+CET,TMAX,TMEAN,TMIN,Dew Point,DEWMEAN,DEWMIN,HUMMAX,HUMMEAN,HUMMIN,MSLPMAX,MSLPMEAN,MSLPMIN,VISMAX,VISMEAN,VISMIN,WINDMAX,WINDMEAN,GUSTMAX,PRCP,CC,Events,WDD
 1997-01-01,7,4,2,5,3,2,100,95,76,1010,1008,1004,10,9,4,13,6,,0,6,,229
 1997-01-02,7,3,0,6,3,0,100,92,71,1007,1003,997,10,9,4,26,8,47,0,5,Rain,143
 1997-01-03,5,3,2,5,1,-1,100,85,70,1005,999,996,10,10,7,27,19,,0,6,Rain-Snow,256

@@ -3,20 +3,101 @@
     <div id="panel-container">
         <div class="left-panel">
             <div class="content">
-                <h1>Linear Regression on Time Series</h2>
-                    <p>
-                    </p>
-                    <div class="button-container">
-                        <button class=selector-button onclick="loadSection(1)">&lt;</button>
-                        <button class=selector-button onclick="loadSection(3)">&gt;</button>
-                    </div>
+                <h1>Linear Regression on Time Series Data</h1>
+                <p>You're probably wondering when we're going to start actually forecasting! Well, wonder no longer,
+                    because now, instead of analyzing the relationship between weather variables, we're going to develop
+                    a model that uses the data from previous days to predict a target variable in the future, as
+                    visualized on the first graph. The correlation matrix isn't particularly interesting for these
+                    lagged variables.</p>
+                <span class="code-subtext">// Sample of our data, names updated for ease of use</span>
+                <pre><code class="language-csv">CET,TMAX,TMEAN,TMIN,Dew Point,DEWMEAN,DEWMIN,HUMMAX,HUMMEAN,HUMMIN,MSLPMAX,MSLPMEAN,MSLPMIN,VISMAX,VISMEAN,VISMIN,WINDMAX,WINDMEAN,GUSTMAX,PRCP,CC,Events,WDD
+1997-01-01,7,4,2,5,3,2,100,95,76,1010,1008,1004,10,9,4,13,6,,0,6,,229</pre></code>
+                <p>Make sure your dataset doesn't have any gaps. With the columns I
+                    dropped, there were only some gaps outside of testing or training sets. It is
+                    important that we choose a test set that chronologically follows our training set. We will start by
+                    predicting the next day's maximum temperature using that of the previous day. </p>
+                <span class="code-subtext">// Import new tools, setup data set, predict</span>
+                <pre><code class="language-python">from sklearn.linear_model import LinearRegression
+df.drop(['GUSTMAX', 'CC', 'Events', 'Dew Point', 'VISMIN', 'VISMAX', 'VISMEAN'], axis=1, inplace=True)                    
+df['TMEAN_lag1'] = df['TMEAN'].shift(1)
+train = df["2010-01-01":"2014-12-31"]
+test = df["2015-01-01":]
+X_train = train_df[['TMEAN_lag1']]
+y_train = train_df['TMEAN']
+X_test = test_df[['TMEAN_lag1']]
+y_test = test_df['TMEAN']
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)</pre></code>
+                <p>You might notice that our predictions look like the actual temperatures shifted forward a day, and
+                    maybe we messed up somewhere and it needs to be shifted, but that isn't the case. You can see clear
+                    differences between the actual temperature and the predicted temperature for the next day,
+                    especially in the lower temps. Please do zoom in and use the pan button to move around! This is
+                    just the nature of lag features. Let's try adding even more and see if it helps. </p>
+                <pre><code class="language-python">df['DEWMEAN_lag1'] = df['DEWMEAN'].shift(1)
+df['TMEAN_lag1'] = df['TMEAN'].shift(1)
+df['TMIN_lag1'] = df['TMIN'].shift(1)
+df['MSLPMEAN_lag1'] = df['MSLPMEAN'].shift(1)
+predictors = ['TMEAN_lag1', 'TMAX_lag1', 'TMIN_lag1', 'MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']</pre></code>
+                <p>Definitely improvement, but we see still the side effects of those lag features. We'll get back to
+                    that soon. The correlation matrix could very likely be different. Let's investigate that. Be aware
+                    that adding more features is not always good. I just chose ones that had a
+                    strong or moderate correlation with the mean temperature, along with the previous day's mean
+                    temperature. Uncorrelated or weakly correlated features
+                    likely will have a negative impact on our regression. But to be clear, this data is from the
+                    previous day. Let's try predicting another variable: precipitation. This is going to be a tough one.
+                    We're not going to use the previous day's precipitation, because we don't want brownie points for
+                    following a spike in precipitation on the next day. Let's use the previous day's sea level pressure,
+                    dew point, and humidity.</p>
+                <pre><code class="language-python">df['MSLPMEAN_lag1'] = df['MSLPMEAN'].shift(1)
+df['DEWMEAN_lag1'] = df['DEWMEAN'].shift(1)
+df['HUMMEAN_lag1'] = df['HUMMEAN'].shift(1)
+predictors = ['MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']</pre></code>
+            </div>
+            <p>Error metrics look great, right? Wrong. We have to consider the magnitude of the variable we're working
+                with.
+                This is precipitation, in inches, compared to temperature, in Farenheit. Overall, our predictions are
+                pretty bad. We're still benefitting from
+                the flaws of lag features due to the correlation between precipitation and our chosen lag features, but
+                I daresay, if you examine the data, there are some days where the spike it predicts isn't as a result of
+                precipitation the day before. So, not the worst. Let's trying incoporating rolling averages. A rolling
+                average is like the lag feature, except the feature is averaged over the last x days. We'll try the
+                prior 4 days.</p>
+            <span class="code-subtext">// Shift to get the average from the prior days, not including the day we will
+                predict for</span>
+            <pre><code class="language-python">df['TMAX_rolling4'] = df['TMAX'].shift(1).rolling(window=4).mean()
+df['TMIN_rolling4'] = df['TMIN'].shift(1).rolling(window=4).mean()
+df['TMEAN_rolling4'] = df['TMEAN'].shift(1).rolling(window=4).mean()
+df['MSLPMEAN_rolling4'] = df['MSLPMEAN'].shift(1).rolling(window=4).mean()
+df['DEWMEAN_rolling4'] = df['DEWMEAN'].shift(1).rolling(window=4).mean()
+df['HUMMEAN_rolling4'] = df['HUMMEAN'].shift(1).rolling(window=4).mean()
+predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']</pre>
+            </code>
+            <p>
+                You'll notice that the graph is much smoother, and we still have the lag issue. And our prediction is
+                worse. Our attempts thus far have been fun, but just have too many issues to be practical. We need to
+                account for long-term
+                trends and season variation in a way that isn't possible with basic linear regrssion.
+            </p>
+            <div class="button-container">
+                <button class=selector-button onclick="loadSection(1)">&lt;</button>
+                <button class=selector-button onclick="loadSection(3)">&gt;</button>
             </div>
         </div>
-
-    </div>
-    <div class="right-panel">
-        <div class="content">
+        <div class="right-panel">
+            <div class="content">
+                <h1>Data Visualization</h1>
+                <div class=iframe-wrapper>
+                    <iframe id=graphFrame>
+                    </iframe>
+                </div>
+                <div class="button-container">
+                    <button class=selector-button id="graph-lrts-left" onclick="loadPreviousGraph()">&lt;</button>
+                    <button class=selector-button id="graph-lrts-right" onclick="loadNextGraph()">&gt;</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 </div>
