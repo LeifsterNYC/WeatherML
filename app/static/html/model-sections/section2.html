@@ -16,10 +16,15 @@
                     dropped, there were only some gaps outside of testing or training sets. It is
                     important that we choose a test set that chronologically follows our training set. We will start by
                     predicting the next day's maximum temperature using that of the previous day. </p>
-                <span class="code-subtext">// Import new tools, setup data set, predict</span>
+                <span class="code-subtext">// Import new tools, setup data set, remove outliers, predict</span>
                 <pre><code class="language-python">from sklearn.linear_model import LinearRegression
-df.drop(['GUSTMAX', 'CC', 'Events', 'Dew Point', 'VISMIN', 'VISMAX', 'VISMEAN'], axis=1, inplace=True)                    
+df.drop(['GUSTMAX', 'CC', 'Events', 'Dew Point', 'VISMIN', 'VISMAX', 'VISMEAN'], axis=1, inplace=True)    
+df[['TMEAN','TMAX', 'TMIN', 'DEWMEAN', 'DEWMIN']] = df[['TMEAN','TMAX', 'TMIN', 'DEWMEAN', 'DEWMIN']].apply(lambda c: (c * 9/5) + 32)
+df[['WINDMAX']] = df[['WINDMAX']].apply(lambda km: km * 0.621371)
+df['PRCP'] = df['PRCP'].apply(lambda mm: mm * .0393701) # Conversions to imperial. This will affect our predictions! Convert all variables you use.                
 df['TMEAN_lag1'] = df['TMEAN'].shift(1)
+df = df[df['WINDMAX'] &lt;= 61]
+df = df[df['MSLPMIN'] >= 970]
 train = df["2010-01-01":"2014-12-31"]
 test = df["2015-01-01":]
 X_train = train_df[['TMEAN_lag1']]
@@ -55,36 +60,43 @@ predictors = ['TMEAN_lag1', 'TMAX_lag1', 'TMIN_lag1', 'MSLPMEAN_lag1', 'DEWMEAN_
 df['DEWMEAN_lag1'] = df['DEWMEAN'].shift(1)
 df['HUMMEAN_lag1'] = df['HUMMEAN'].shift(1)
 predictors = ['MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']</pre></code>
-            </div>
-            <p>Error metrics look great, right? Wrong. We have to consider the magnitude of the variable we're working
-                with.
-                This is precipitation, in inches, compared to temperature, in Farenheit. Overall, our predictions are
-                pretty bad. We're still benefitting from
-                the flaws of lag features due to the correlation between precipitation and our chosen lag features, but
-                I daresay, if you examine the data, there are some days where the spike it predicts isn't as a result of
-                precipitation the day before. So, not the worst. Let's trying incoporating rolling averages. A rolling
-                average is like the lag feature, except the feature is averaged over the last x days. We'll try the
-                prior 4 days.</p>
-            <span class="code-subtext">// Shift to get the average from the prior days, not including the day we will
-                predict for</span>
-            <pre><code class="language-python">df['TMAX_rolling4'] = df['TMAX'].shift(1).rolling(window=4).mean()
+
+                <p>Error metrics look great, right? Wrong. We have to consider the magnitude of the variable we're
+                    working
+                    with.
+                    This is precipitation, in inches, compared to temperature, in Farenheit. Overall, our predictions
+                    are
+                    pretty bad. We're still benefitting from
+                    the flaws of lag features due to the correlation between precipitation and our chosen lag features,
+                    but
+                    I daresay, if you examine the data, there are some days where the spike it predicts isn't as a
+                    result of
+                    precipitation the day before. So, not the worst. Let's trying incoporating rolling averages. A
+                    rolling
+                    average is like the lag feature, except the feature is averaged over the last x days. We'll try the
+                    prior 4 days.</p>
+                <span class="code-subtext">// Shift to get the average from the prior days, not including the day we
+                    will
+                    predict for</span>
+                <pre><code class="language-python">df['TMAX_rolling4'] = df['TMAX'].shift(1).rolling(window=4).mean()
 df['TMIN_rolling4'] = df['TMIN'].shift(1).rolling(window=4).mean()
 df['TMEAN_rolling4'] = df['TMEAN'].shift(1).rolling(window=4).mean()
 df['MSLPMEAN_rolling4'] = df['MSLPMEAN'].shift(1).rolling(window=4).mean()
 df['DEWMEAN_rolling4'] = df['DEWMEAN'].shift(1).rolling(window=4).mean()
 df['HUMMEAN_rolling4'] = df['HUMMEAN'].shift(1).rolling(window=4).mean()
-predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']</pre>
-            </code>
-            <p>
-                You'll notice that the graph is much smoother, and we still have the lag issue. And our prediction is
-                worse. Our attempts thus far have been fun, but just have too many issues to be practical. We need to
-                account for long-term
-                trends and season variation in a way that isn't possible with basic linear regrssion. One option is
-                ARIMA or SARIMA or SARIMAX, all variations of a statistical analysis model. Since I want to focus on
-                machine learning models, we're not going to try this out, but I would encourage you to take a look at
-                them if you're interesting. They can be applied to this kind of data with the right preprocessing. We're
-                going to move onto our first machine learning model, Random Forest Regression!
-            </p>
+predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']</pre></code>
+                <p>You'll notice that the graph is much smoother, and we still have the lag issue. And our prediction is
+                    worse. Our attempts thus far have been fun, but just have too many issues to be practical. We need
+                    to
+                    account for long-term
+                    trends and season variation in a way that isn't possible with basic linear regrssion. One option is
+                    ARIMA or SARIMA or SARIMAX, all variations of a statistical analysis model. Since I want to focus on
+                    machine learning models, we're not going to try this out, but I would encourage you to take a look
+                    at
+                    them if you're interesting. They can be applied to this kind of data with the right preprocessing.
+                    We're
+                    going to move onto our first machine learning model, Random Forest Regression!</p>
+            </div>
             <div class="button-container">
                 <button class=selector-button onclick="loadSection(1)">&lt;</button>
                 <button class=selector-button onclick="loadSection(3)">&gt;</button>

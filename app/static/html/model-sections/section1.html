@@ -54,7 +54,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 df = pd.read_csv('data/data2.csv')  
 df.dropna(inplace=True) # Drop any NaN values from the dataset
-df = df[df['Max Wind Speed'] &lt;= 150] # Remove wind speeds higher than 150 km/h, as analyzed by box plot
+df = df[df['Max Wind Speed'] &lt;= 100] # Remove wind speeds higher than 100 km/h, as analyzed as outliers by box plot
+df = df[df['MSLPMIN'] >= 970] 
 df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']] = df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']].apply(lambda c: (c * 9/5) + 32)
 df[['Mean Visibility', 'Max Wind Speed']] = df[['Mean Visibility', 'Max Wind Speed']].apply(lambda km: km * 0.621371)
 df['Precipitation'] = df['Precipitation'].apply(lambda mm: mm * .0393701) # Apply unit conversions to data we'll be using
@@ -80,8 +81,6 @@ plt.show() # For your own code</pre></code>
                         <li>A moderate-strong positive correlation between Humidity and Cloud Cover -- this makes sense,
                             after all clouds are made of water.</li>
                     </ul>
-                    <span class="code-subtext">// Importing data, converting to datetime, and creating lag
-                        feature</span>
                     <p>
                         Let's try using linear regression to use the relationship between these variables to predict the
                         mean temperature, our target variable. We will exclude other temperature data in our features,
@@ -99,7 +98,7 @@ plt.show() # For your own code</pre></code>
                         future. We'll try time series analysis later. For now, we just want to understand the
                         relationship between different climate variables.
                     </p>
-                    <pre><code class="language-python">X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature', 'Mean Dewpoint'], axis = 1)
+                    <pre><code class="language-python">X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature'], axis = 1)
 y = df_cleaned['Mean Temperature']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44) # Programming randomness is pseudorandom. You can reproduce the shuffle with the same random_state. 
 model = LinearRegression()

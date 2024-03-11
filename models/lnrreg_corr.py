@@ -12,8 +12,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-df = pd.read_csv('data/madrid1.csv') 
+df = pd.read_csv('data/madrid_orig.csv') 
 df = df[df['Max Wind Speed'] <= 100] # Remove wind speeds higher than 100 km/h, as analyzed as outliers by box plot
+df = df[df['Min Sea Level Pressure'] >= 970] 
 df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']] = df[['Mean Temperature','Max Temperature', 'Min Temperature', 'Mean Dewpoint']].apply(lambda c: (c * 9/5) + 32)
 df[['Mean Visibility', 'Max Wind Speed']] = df[['Mean Visibility', 'Max Wind Speed']].apply(lambda km: km * 0.621371)
 df['Precipitation'] = df['Precipitation'].apply(lambda mm: mm * .0393701)
@@ -42,7 +43,7 @@ fig.update_layout(
 fig.update_xaxes(side="bottom")
 pio.write_html(fig, 'app/static/graphs/lrts1.html', config={'responsive': True})
 
-X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature'], axis = 1)
+X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature', 'Mean Dewpoint'], axis = 1)
 y = df_cleaned['Mean Temperature']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
 
@@ -76,7 +77,7 @@ fig.update_layout(title={
                   xaxis_title='Actual Mean Temperature (F)',
                   yaxis_title='Predicted Mean Temperature (F)',
                   legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
-pio.write_html(fig, 'app/static/graphs/lr2.html', config={'responsive': True})
+pio.write_html(fig, 'app/static/graphs/lr3.html', config={'responsive': True})
 
 
 X = df_cleaned.drop(['Mean Sea Level Pressure'], axis = 1)

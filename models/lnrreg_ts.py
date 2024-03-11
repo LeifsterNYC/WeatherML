@@ -37,6 +37,9 @@ df['PRCP_lag1'] = df['PRCP'].shift(1)
 df['MSLPMEAN_lag1'] = df['MSLPMEAN'].shift(1)
 df.dropna(inplace=True)
 
+df = df[df['WINDMAX'] <= 61]
+df = df[df['MSLPMIN'] >= 970]
+
 corr_select = df[['TMEAN', 'TMEAN_lag1', 'TMAX', 'TMAX_lag1', 'TMIN', 'TMIN_lag1', 'HUMMEAN', 'HUMMEAN_lag1', 'MSLPMEAN', 'MSLPMEAN_lag1', 'PRCP', 'PRCP_lag1']]
 
 corr = corr_select.corr()
@@ -62,8 +65,7 @@ pio.write_html(fig, 'app/static/graphs/lrts1.html', config={'responsive': True})
 
 predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']
 
-target = 'TMEAN'
-
+target = 'PRCP'
 
 train = df["2010-01-01":"2014-12-31"]
 test = df["2015-01-01":]
@@ -117,13 +119,13 @@ fig.add_annotation(x=0, y=0, xref='paper', yref='paper',
                    font=dict(size=7, color='darkgreen'),
                    align='left', xanchor='left', yanchor='bottom')
 fig.update_layout(title={
-        'text': "Comparison of Predicted and Actual Mean Temperature (F)",
+        'text': "Comparison of Predicted and Actual Precipitation (in)",
         'y':0.9,
         'x':0.5,
         'xanchor': 'center',
         'yanchor': 'top'
     }, autosize=True,
-                  xaxis_title='Actual Mean Temperature (F)',
-                  yaxis_title='Predicted Mean Temperature (F)',
+                  xaxis_title='Actual Precipitation (in)',
+                  yaxis_title='Predicted Precipitation (in)',
                   legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
 pio.write_html(fig, 'app/static/graphs/lrts5.html', config={'responsive': True})
