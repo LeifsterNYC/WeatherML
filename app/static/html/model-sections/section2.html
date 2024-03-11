@@ -79,7 +79,11 @@ predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_ro
                 You'll notice that the graph is much smoother, and we still have the lag issue. And our prediction is
                 worse. Our attempts thus far have been fun, but just have too many issues to be practical. We need to
                 account for long-term
-                trends and season variation in a way that isn't possible with basic linear regrssion.
+                trends and season variation in a way that isn't possible with basic linear regrssion. One option is
+                ARIMA or SARIMA or SARIMAX, all variations of a statistical analysis model. Since I want to focus on
+                machine learning models, we're not going to try this out, but I would encourage you to take a look at
+                them if you're interesting. They can be applied to this kind of data with the right preprocessing. We're
+                going to move onto our first machine learning model, Random Forest Regression!
             </p>
             <div class="button-container">
                 <button class=selector-button onclick="loadSection(1)">&lt;</button>

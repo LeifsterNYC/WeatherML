@@ -60,7 +60,7 @@ fig.update_layout(
 )
 pio.write_html(fig, 'app/static/graphs/lrts1.html', config={'responsive': True})
 
-predictors = predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']
+predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']
 
 target = 'TMEAN'
 
