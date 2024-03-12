@@ -1,6 +1,6 @@
 let currentSection = 0;
 let oldCurrentSection = 0;
-let sections = ['about', 'lr', 'lrts', 'rf'];
+let sections = ['about', 'lr', 'lrts', 'rf', 'gbm'];
 function loadSection(section) {
     oldCurrentSection = currentSection;
     currentSection = section;
@@ -34,9 +34,10 @@ let currentSectionName = 'about';
 
 const sectionGraphs = {
     about: ['item1', 'item2', 'item3'],
-    lr: ['lr1.html', 'lr2.html', 'lr3.html', 'lr4.html'],
+    lr: ['lr1.html', 'lr2.html', 'lr3.html', 'lr4.html', 'lr5.html'],
     lrts: ['lrts1.html', 'lrts2.html', 'lrts3.html', 'lrts4.html', 'lrts5.html', 'lrts6.html'],
-    rf: ['rf1.html', 'rf2.html', 'rf3.html']
+    rf: ['rf1.html', 'rf2.html', 'rf3.html', 'rf4.html', 'rf5.html', 'rf6.html'],
+    gbm: []
 };
 
 function loadGraph(g) {

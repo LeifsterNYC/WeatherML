@@ -64,15 +64,48 @@ predictors = df.drop(['TMAX', 'TMIN', 'TMEAN'], axis=1).columns
 X = df[predictors]
 y = df[target]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
-model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
-# Calculate error metrics and plot by a graphing library of your choice
 </pre></code>
                 <p>
                     Let's start by doing what we did in the first section, and trying to predict a variable based on
-                    others from the same day. We'll run the exact same test
+                    others from the same day. We'll run our test with the exact same predictors and target, but use the
+                    Random Forest Regressor model. The random_state works in the same way as during our linear
+                    regression testing. Remember, we are not treating this as time series data, so we want to randomly
+                    split our test and training sets. The input n_estimators dictates how many trees will be in the
+                    forest. Theoretically, more decision trees will lead to better results, but also increase running
+                    time. Let's try it with 10 trees,
+                    then 100 trees. We also have a new metric called R2 score, which tells us what percentage of the
+                    variance
+                    in our target can be explained by the predictors.
                 </p>
+                <pre><code class="language-python">from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor
+trees = 10 # Change to number of trees you want to test
+model = RandomForestRegressor(n_estimators=trees, random_state=44)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+r2 = r2_score(y_test, y_pred)
+# Calculate other error metrics like our other examples and plot by a graphing library of your choice</pre></code>
+                <p>Even our results with 10 decision trees are better than our linear regression example. Our MAE and
+                    MSE are 1.59 and 4.23 respectively, while during the same trial with linear regression, they were
+                    1.81 and 5.36 respectively. Note that since we used the same random_state, the data was split in the
+                    same way. With 100 trees, our prediction improves even more. With 1000 (not shown), I did not notice
+                    any improvement. You can also see that our predictions do not suffer at the highest range of
+                    temperature like our linear regression did. Let's try the same 10 and 100 trees for MSLP, with the
+                    same predictors as before.
+                </p>
+                <pre><code class="language-python">target = 'MSLPMEAN'
+predictors = df.drop(['MSLPMEAN'], axis=1).columns]
+# Initialize and fit the model, calculate error, and graph same as we did before</pre></code>
+                <p>We only notice a slight improvement from an MSE of 3.90 to 3.80 with 100 decision trees. For fun,
+                    let's try to predict Mean Visibility with 100 trees
+                    and all variables besides itself and other visibility measures (we dropped them earlier).
+                <pre><code class="language-python">target = 'VISMEAN'
+predictors = df.drop(['VISMEAN'], axis=1).columns]
+# Initialize and fit the model, calculate error, and graph same as we did before</pre></code></p>
+                <p>The Random Forest model actually performs worse than linear regression. LR had an MAE of 1.22 and MSE
+                    of 3.51, while RF had an MAE of 1.82 and MSE of 8.34. Note our R2 score is 0.28, so only 28 percent
+                    of the variance in the visibility can be attributed to our predictors. The last type of model we'll
+                    investigate are called Gradient Boosting Machines.</p>
                 <div class="button-container">
                     <button class=selector-button onclick="loadSection(2)">&lt;</button>
                     <button class=selector-button onclick="loadSection(4)">&gt;</button>

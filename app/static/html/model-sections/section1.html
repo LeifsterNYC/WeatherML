@@ -141,7 +141,8 @@ plt.legend()</pre></code>
                         MSLP.</p>
                     <pre><code class="language-python">X = df_cleaned.drop(['Mean Sea Level Pressure'], axis = 1)
 y = df_cleaned['Mean Sea Level Pressure']</pre></code>
-                    <p>Not great, but not horrible. Important note: do not evaluate our error metrics simply based on
+                    <p>Not great, but not horrible. You can check out one last prediction for mean visibility at the end
+                        of the graphs. Important note: do not evaluate our error metrics simply based on
                         magnitude. It
                         must be considered in relation to the scale of the target variable and in comparison to other
                         models. Let's move onto using linear regression to actually predict time series data.</p>

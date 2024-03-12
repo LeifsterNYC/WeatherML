@@ -43,8 +43,10 @@ fig.update_layout(
 fig.update_xaxes(side="bottom")
 pio.write_html(fig, 'app/static/graphs/lrts1.html', config={'responsive': True})
 
-X = df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature', 'Mean Dewpoint'], axis = 1)
-y = df_cleaned['Mean Temperature']
+target = 'Mean Temperature'
+predictors =  df_cleaned.drop(['Mean Temperature', 'Max Temperature', 'Min Temperature', 'Mean Dewpoint'], axis=1).columns
+X = df_cleaned[predictors]
+y = df_cleaned[target]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
 
 model = LinearRegression()
@@ -67,6 +69,10 @@ fig.add_trace(go.Line(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.ma
 fig.add_annotation(x=0.95, y=0.05, xref='paper', yref='paper',
                    text=f'MAE: {mae:.2f}<br>MSE: {mse:.2f}',
                    showarrow=False, align='right', font_color='darkgreen')
+fig.add_annotation(x=0, y=0, xref='paper', yref='paper',
+                   text=f'Features:{predictors.to_list()}', showarrow=False,
+                   font=dict(size=7, color='darkgreen'),
+                   align='left', xanchor='left', yanchor='bottom')
 fig.update_layout(title={
         'text': "Comparison of Mean and Actual Predicted Temperature",
         'y':0.9,
@@ -80,8 +86,10 @@ fig.update_layout(title={
 pio.write_html(fig, 'app/static/graphs/lr3.html', config={'responsive': True})
 
 
-X = df_cleaned.drop(['Mean Sea Level Pressure'], axis = 1)
-y = df_cleaned['Mean Sea Level Pressure']
+target = 'Mean Sea Level Pressure'
+predictors =  df_cleaned.drop(['Mean Sea Level Pressure'], axis=1).columns
+X = df_cleaned[predictors]
+y = df_cleaned[target]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
 
@@ -104,6 +112,10 @@ fig.add_trace(go.Line(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.ma
 fig.add_annotation(x=0.95, y=0.05, xref='paper', yref='paper',
                    text=f'MAE: {mae:.2f}<br>MSE: {mse:.2f}',
                    showarrow=False, align='right', font_color='darkgreen')
+fig.add_annotation(x=0, y=0, xref='paper', yref='paper',
+                   text=f'Features:{predictors.to_list()}', showarrow=False,
+                   font=dict(size=7, color='darkgreen'),
+                   align='left', xanchor='left', yanchor='bottom')
 fig.update_layout(title={
         'text': "Comparison of Mean and Actual Sea Level Pressure (mb)",
         'y':0.9,
@@ -115,3 +127,44 @@ fig.update_layout(title={
                   yaxis_title='Predicted Mean Sea Level Pressure (mb)',
                   legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
 pio.write_html(fig, 'app/static/graphs/lr4.html', config={'responsive': True})
+
+target = 'Mean Visibility'
+predictors =  df_cleaned.drop(['Mean Visibility'], axis=1).columns
+X = df_cleaned[predictors]
+y = df_cleaned[target]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
+
+model3 = LinearRegression()
+model3.fit(X_train, y_train)
+
+y_pred = model3.predict(X_test)
+
+mae = mean_absolute_error(y_test, y_pred)
+print('Mean Absolute Error:', mae)
+mse = mean_squared_error(y_test, y_pred)
+print('Mean Squared Error:', mse)
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Predicted vs Actual',
+                         marker=dict(color='LightSkyBlue', opacity=0.7)))
+fig.add_trace(go.Line(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()], name='Perfect Prediction',
+                      line=dict(color='black', dash='dash')))
+fig.add_annotation(x=0.95, y=0.05, xref='paper', yref='paper',
+                   text=f'MAE: {mae:.2f}<br>MSE: {mse:.2f}',
+                   showarrow=False, align='right', font_color='darkgreen')
+fig.add_annotation(x=0, y=0, xref='paper', yref='paper',
+                   text=f'Features:{predictors.to_list()}', showarrow=False,
+                   font=dict(size=7, color='darkgreen'),
+                   align='left', xanchor='left', yanchor='bottom')
+fig.update_layout(title={
+        'text': "Comparison of Predicted and Actual Mean Visibility (mi)",
+        'y':0.9,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'
+    }, autosize=True,
+                  xaxis_title='Actual Mean Visibility (mi)',
+                  yaxis_title='Predicted Mean Visibility (mi)',
+                  legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+pio.write_html(fig, 'app/static/graphs/lr5.html', config={'responsive': True})
