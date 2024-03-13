@@ -6,7 +6,7 @@
                 <h1>Random Forest Regression
                 </h1>
                 <p>
-                    t's time to shift our gears from the linear simplicity to the ensemble complexity! Think of Random
+                    It's time to shift our gears from the linear simplicity to the ensemble complexity! Think of Random
                     Forest Regression like a weather forecast team instead of just one meteorologist. It's an ensemble
                     learning method that combines multiple decision trees (think of these as individual forecasts) to
                     make a more accurate and robust prediction. Each tree in the forest makes its own prediction, and
@@ -99,13 +99,30 @@ predictors = df.drop(['MSLPMEAN'], axis=1).columns]
                 <p>We only notice a slight improvement from an MSE of 3.90 to 3.80 with 100 decision trees. For fun,
                     let's try to predict Mean Visibility with 100 trees
                     and all variables besides itself and other visibility measures (we dropped them earlier).
+                </p>
                 <pre><code class="language-python">target = 'VISMEAN'
 predictors = df.drop(['VISMEAN'], axis=1).columns]
-# Initialize and fit the model, calculate error, and graph same as we did before</pre></code></p>
+# Initialize and fit the model, calculate error, and graph same as we did before</pre></code>
                 <p>The Random Forest model actually performs worse than linear regression. LR had an MAE of 1.22 and MSE
                     of 3.51, while RF had an MAE of 1.82 and MSE of 8.34. Note our R2 score is 0.28, so only 28 percent
-                    of the variance in the visibility can be attributed to our predictors. The last type of model we'll
-                    investigate are called Gradient Boosting Machines.</p>
+                    of the variance in the visibility can be attributed to our predictors. Let's also use the Random
+                    Forest Regressor to forecast. We'll use the same setup as our linear regression on time series. The
+                    features used are noted under each graph for comparison.</p>
+                <pre><code class="language-python">predictors = ['TMEAN_lag1', 'TMAX_lag1', 'TMIN_lag1', 'MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']
+target = 'TMEAN' # This and above line are different for each graph
+
+train = df["2010-01-01":"2014-12-31"]
+test = df["2015-01-01":]
+
+X_train = train[predictors]
+y_train = train[target]
+X_test = test[predictors]
+y_test = test[target]
+
+model = RandomForestRegressor(n_estimators=250, random_state=44)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)</pre></code>
                 <div class="button-container">
                     <button class=selector-button onclick="loadSection(2)">&lt;</button>
                     <button class=selector-button onclick="loadSection(4)">&gt;</button>

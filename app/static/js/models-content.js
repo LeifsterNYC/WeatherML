@@ -20,7 +20,7 @@ function loadSection(section) {
             Prism.highlightAll();
             newSection(sections[currentSection]);
             loadGraph(1);
-            console.log(sections[currentSection]);
+            window.scrollTo(0, 0);
         })
         .catch(error => {
             console.error('Error loading section:', error);
@@ -36,7 +36,7 @@ const sectionGraphs = {
     about: ['item1', 'item2', 'item3'],
     lr: ['lr1.html', 'lr2.html', 'lr3.html', 'lr4.html', 'lr5.html'],
     lrts: ['lrts1.html', 'lrts2.html', 'lrts3.html', 'lrts4.html', 'lrts5.html', 'lrts6.html'],
-    rf: ['rf1.html', 'rf2.html', 'rf3.html', 'rf4.html', 'rf5.html', 'rf6.html'],
+    rf: ['rf1.html', 'rf2.html', 'rf3.html', 'rf4.html', 'rf5.html', 'rf6.html', 'rf7.html', 'rf8.html', 'rf9.html', 'rf10.html'],
     gbm: []
 };
 
@@ -76,6 +76,3 @@ function newSection(section) {
     oldCurrentGraph = 1;
     currentSectionName = section;
 }
-
-
-

@@ -150,13 +150,22 @@ html {
             font-size: 15px;
             line-height: 1.5;
             text-indent: 20px;
+
+
         }
 
         li {
             font-size: 15px;
         }
 
-
+        .graph {
+            &:hover {
+                transition: background-color 1s, padding 1s;
+                border-radius: 20px;
+                padding: 5px;
+                background-color: #89c894;
+            }
+        }
 
     }
 }
