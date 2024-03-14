@@ -4,7 +4,8 @@
         <div class="left-panel">
             <div class="content">
                 <h1>Linear Regression on Time Series Data</h1>
-                <p>You're probably wondering when we're going to start actually forecasting! Well, wonder no longer,
+                <p class="graph" onclick=loadGraph(1)>You're probably wondering when we're going to start actually
+                    forecasting! Well, wonder no longer,
                     because now, instead of analyzing the relationship between weather variables, we're going to develop
                     a model that uses the data from previous days to predict a target variable in the future, as
                     visualized on the first graph. The correlation matrix isn't particularly interesting for these
@@ -12,7 +13,7 @@
                 <span class="code-subtext">// Sample of our data, names updated for ease of use</span>
                 <pre><code class="language-csv">CET,TMAX,TMEAN,TMIN,Dew Point,DEWMEAN,DEWMIN,HUMMAX,HUMMEAN,HUMMIN,MSLPMAX,MSLPMEAN,MSLPMIN,VISMAX,VISMEAN,VISMIN,WINDMAX,WINDMEAN,GUSTMAX,PRCP,CC,Events,WDD
 1997-01-01,7,4,2,5,3,2,100,95,76,1010,1008,1004,10,9,4,13,6,,0,6,,229</pre></code>
-                <p>Make sure your dataset doesn't have any gaps. With the columns I
+                <p class="graph" onclick=loadGraph(2)>Make sure your dataset doesn't have any gaps. With the columns I
                     dropped, there were only some gaps outside of testing or training sets. It is
                     important that we choose a test set that chronologically follows our training set. We will start by
                     predicting the next day's maximum temperature using that of the previous day. </p>
@@ -36,7 +37,8 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 mae = mean_absolute_error(y_test, y_pred)
 mse = mean_squared_error(y_test, y_pred)</pre></code>
-                <p>You might notice that our predictions look like the actual temperatures shifted forward a day, and
+                <p class="graph" onclick=loadGraph(3)>You might notice that our predictions look like the actual
+                    temperatures shifted forward a day, and
                     maybe we messed up somewhere and it needs to be shifted, but that isn't the case. You can see clear
                     differences between the actual temperature and the predicted temperature for the next day,
                     especially in the lower temps. Please do zoom in and use the pan button to move around! This is
@@ -46,7 +48,8 @@ df['TMEAN_lag1'] = df['TMEAN'].shift(1)
 df['TMIN_lag1'] = df['TMIN'].shift(1)
 df['MSLPMEAN_lag1'] = df['MSLPMEAN'].shift(1)
 predictors = ['TMEAN_lag1', 'TMAX_lag1', 'TMIN_lag1', 'MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']</pre></code>
-                <p>Definitely improvement, but we see still the side effects of those lag features. We'll get back to
+                <p class="graph" onclick=loadGraph(4)>Definitely improvement, but we see still the side effects of those
+                    lag features. We'll get back to
                     that soon. The correlation matrix could very likely be different. Let's investigate that. Be aware
                     that adding more features is not always good. I just chose ones that had a
                     strong or moderate correlation with the mean temperature, along with the previous day's mean
@@ -61,7 +64,8 @@ df['DEWMEAN_lag1'] = df['DEWMEAN'].shift(1)
 df['HUMMEAN_lag1'] = df['HUMMEAN'].shift(1)
 predictors = ['MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']</pre></code>
 
-                <p>Error metrics look great, right? Wrong. We have to consider the magnitude of the variable we're
+                <p class="graph" onclick=loadGraph(5)>Error metrics look great, right? Wrong. We have to consider the
+                    magnitude of the variable we're
                     working
                     with.
                     This is precipitation, in inches, compared to temperature, in Farenheit. Overall, our predictions
@@ -85,7 +89,8 @@ df['MSLPMEAN_rolling4'] = df['MSLPMEAN'].shift(1).rolling(window=4).mean()
 df['DEWMEAN_rolling4'] = df['DEWMEAN'].shift(1).rolling(window=4).mean()
 df['HUMMEAN_rolling4'] = df['HUMMEAN'].shift(1).rolling(window=4).mean()
 predictors = ['TMAX_rolling4', 'TMIN_rolling4', 'MSLPMEAN_rolling4', 'HUMMEAN_rolling4', 'DEWMEAN_rolling4', 'TMEAN_rolling4']</pre></code>
-                <p>You'll notice that the graph is much smoother, and we still have the lag issue. And our prediction is
+                <p class="graph" onclick=loadGraph(6)>You'll notice that the graph is much smoother, and we still have
+                    the lag issue. And our prediction is
                     worse. Our attempts thus far have been fun, but just have too many issues to be practical. We need
                     to
                     account for long-term

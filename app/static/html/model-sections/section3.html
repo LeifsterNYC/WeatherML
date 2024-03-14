@@ -13,7 +13,7 @@
                     the final output is the average of all these predictions. This method helps in reducing overfitting
                     (too much reliance on the training data) and improves accuracy.
                 </p>
-                <p>
+                <p class="graph" onclick=loadGraph(1)>
                     Unlike linear regression, which tries to find a straight line that best fits the data, Random Forest
                     can capture complex, nonlinear relationships between the features and the target variable. So, in
                     the context of our data - like the time series data of maximum temperature, mean temperature, and
@@ -43,7 +43,7 @@ yaxis_title='Values',
 showlegend=True
 )
 fig.show()</pre></code>
-                <p>
+                <p class="graph" onclick=loadGraph(1)>
                     Our outliers are the circles outside of the box minimum or maximum. This doesn't mean they are all
                     actually outliers. We have to use our best judgement. The Max Wind Speed outliers, considering that
                     this isn't a record of max gusts, look suspicious. We'll remove them. I'll leave it as a challenge
@@ -52,9 +52,6 @@ fig.show()</pre></code>
                 <span class="code-subtext">// Remove notable outliers and select data time range with no gaps for our
                     variables
                 </span>
-                <p>
-
-                </p>
                 <pre><code class="language-python">df = df[['TMIN', 'TMAX', 'TMEAN', 'DEWMEAN', 'HUMMEAN', 'MSLPMEAN', 'PRCP', 'VISMEAN', 'WINDMAX', 'WDD', 'CC']]
 df = df[df['WINDMAX'] &lt;= 61]
 df = df[df['MSLPMIN'] >= 970]
@@ -85,8 +82,9 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 r2 = r2_score(y_test, y_pred)
 # Calculate other error metrics like our other examples and plot by a graphing library of your choice</pre></code>
-                <p>Even our results with 10 decision trees are better than our linear regression example. Our MAE and
-                    MSE are 1.59 and 4.23 respectively, while during the same trial with linear regression, they were
+                <p class="graph" onclick=loadGraph(2)>Even our results with 10 decision trees are better than our linear
+                    regression example. Our MAE and
+                    MSE are 1.46 and 3.51 respectively, while during the same trial with linear regression, they were
                     1.81 and 5.36 respectively. Note that since we used the same random_state, the data was split in the
                     same way. With 100 trees, our prediction improves even more. With 1000 (not shown), I did not notice
                     any improvement. You can also see that our predictions do not suffer at the highest range of
@@ -96,17 +94,22 @@ r2 = r2_score(y_test, y_pred)
                 <pre><code class="language-python">target = 'MSLPMEAN'
 predictors = df.drop(['MSLPMEAN'], axis=1).columns]
 # Initialize and fit the model, calculate error, and graph same as we did before</pre></code>
-                <p>We only notice a slight improvement from an MSE of 3.90 to 3.80 with 100 decision trees. For fun,
+                <p class="graph" onclick=loadGraph(4)>We only notice a slight improvement from an MSE of 3.90 to 3.80
+                    with 100 decision trees. For fun,
                     let's try to predict Mean Visibility with 100 trees
                     and all variables besides itself and other visibility measures (we dropped them earlier).
                 </p>
                 <pre><code class="language-python">target = 'VISMEAN'
 predictors = df.drop(['VISMEAN'], axis=1).columns]
 # Initialize and fit the model, calculate error, and graph same as we did before</pre></code>
-                <p>The Random Forest model actually performs worse than linear regression. LR had an MAE of 1.22 and MSE
+                <p class="graph" onclick=loadGraph(6)>The Random Forest model actually performs worse than linear
+                    regression. LR had an MAE of 1.22 and MSE
                     of 3.51, while RF had an MAE of 1.82 and MSE of 8.34. Note our R2 score is 0.28, so only 28 percent
-                    of the variance in the visibility can be attributed to our predictors. Let's also use the Random
-                    Forest Regressor to forecast. We'll use the same setup as our linear regression on time series. The
+                    of the variance in the visibility can be attributed to our predictors.</p>
+
+                <p class="graph" onclick=loadGraph(7)>Let's also use the Random
+                    Forest Regressor to forecast. We'll use the same setup as our linear regression on time series.
+                    The
                     features used are noted under each graph for comparison.</p>
                 <pre><code class="language-python">predictors = ['TMEAN_lag1', 'TMAX_lag1', 'TMIN_lag1', 'MSLPMEAN_lag1', 'DEWMEAN_lag1', 'HUMMEAN_lag1']
 target = 'TMEAN' # This and above line are different for each graph
@@ -123,6 +126,17 @@ model = RandomForestRegressor(n_estimators=250, random_state=44)
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)</pre></code>
+                <p>
+                    You'll notice that our results are actually worse on average compared to linear regression. This can
+                    be due to a couple of reasons. Random Forest Regression is prone to overfitting based on training
+                    data. Additionally, if we input variables with low (but not nonexistent) correlation to our target
+                    variable, it can negatively impact the model. This is referred to as "noise" which can be
+                    interpreted as trends where no trends exist. Some of our inputs did contain features that were not
+                    too relevant to our target variable based on our correlation tree. I encourage you to play with the
+                    inputs to see if you can get better performance. The data, with edited names, is on the GitHub repo
+                    linked in About. We're going to investigate one more model called gradient boosting to see if we can
+                    improve our results.
+                </p>
                 <div class="button-container">
                     <button class=selector-button onclick="loadSection(2)">&lt;</button>
                     <button class=selector-button onclick="loadSection(4)">&gt;</button>
