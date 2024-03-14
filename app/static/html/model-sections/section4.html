@@ -3,11 +3,109 @@
     <div id="panel-container">
         <div class="left-panel">
             <div class="content">
-                <h1>Gradient Boosting</h1>
-            </div>
-            <div class="button-container">
-                <button class=selector-button onclick="loadSection(3)">&lt;</button>
-                <button class=selector-button onclick="loadSection(5)">&gt;</button>
+                <h1>Deep Learning using LSTM</h1>
+
+                <p>
+                    We're going to train a neural network called a Long Short-Term Memory (LSTM) neural network, which
+                    is a
+                    recurrent neural network that works well with time series data. Neural networks are a very
+                    complicated
+                    topic which I encourage you to explore further. I will attempt to explain what we're doing at a base
+                    level, but the point of this project is to investigate the effectiveness of different techniques.
+                    There
+                    are many great resources on neural networks and deep learning out there.
+                </p>
+                <p>
+                    A neural network is a maching learning model that is similar to biologic neurals in that it creates
+                    interconnected nodes in a layered structure to solve problems and remember patterns. A recurrent
+                    neural
+                    network is a type of neural network that can create connections that loop backwards
+                    through information. They basically use past information to inform their current task. The LSTM
+                    variant
+                    is useful because it can remember information for long periods of time, but the mechanics behind it
+                    are
+                    too complex to get into.
+                </p>
+                <span class="code-subtext">// Preprocess data
+                </span>
+                <pre><code class="language-python">df = pd.read_csv('data/madrid1.csv')
+df['CET'] = pd.to_datetime(df['CET'])
+df.drop(['GUSTMAX', 'CC', 'Events', 'Dew Point', 'VISMIN', 'VISMAX', 'VISMEAN'], axis=1, inplace=True)
+df.set_index('CET', inplace=True)
+df[['TMEAN','TMAX', 'TMIN', 'DEWMEAN', 'DEWMIN']] = df[['TMEAN','TMAX', 'TMIN', 'DEWMEAN', 'DEWMIN']].apply(lambda c: (c * 9/5) + 32)
+df[['WINDMAX']] = df[['WINDMAX']].apply(lambda km: km * 0.621371)
+df['PRCP'] = df['PRCP'].apply(lambda mm: mm * .0393701)
+df = df[df['WINDMAX'] &lt;= 61]
+df.dropna(inplace=True)
+df = df["2004-01-01":]</pre></code>
+                <p>
+                    Neural networks work best with scaled data, usually between 0 and 1. We will transform all of the
+                    features in our dataset. For example, if the maximum TMAX in the dataset is 100, that would be
+                    scaled to
+                    1, and 50 would be scaled to 0.5 etc.
+                </p>
+                <pre><code class="language-python">from sklearn.preprocessing import MinMaxScaler
+features = df.columns # Includes target
+scaler = MinMaxScaler()
+df_scaled = pd.DataFrame(scaler.fit_transform(df), columns=features, index=df.index)</pre></code>
+                <p>We also need to split the data into sequences for the LSTM model. The function below will create
+                    numpy arrays of the features and target in slices dictated by the inputs. past_days is the days in
+                    the past we want to include in each slice (like the lag features), and predict_days is how many days
+                    we want to predict. We also will split our data in the same way we did for other time series
+                    modeling, but this time I used 80% for training and 20% for testing.</p>
+                <pre><code class="language-python">def create_sequences(df, past_days, predict_days):
+    X, y = [], []
+    for i in range(len(df) - past_days - predict_days + 1):
+    X.append(df.iloc[i:(i + past_days)].to_numpy())
+    y.append(df.iloc[i + past_days:i + past_days + predict_days][target].to_numpy())
+    return np.array(X), np.array(y)
+
+X, y = create_sequences(df_scaled, 10, 1)
+data_length = len(X)
+split= int(data_length * 0.8)
+X_train, X_test = X[:split], X[split:]
+y_train, y_test = y[:split], y[split:]</pre></code>
+                <p>We now need to initiliaze and train our model. We use the Sequential model which is a (sequential)
+                    stack of
+                    layers. Our layers are Input, LSTM and Dense. Our Input layer has a shape that correspond to the
+                    number of time steps in each input sequence and number of
+                    features. Our LSTM layer has 50 units, and activation function tanh. Dense combines all of the
+                    neurons from the LSTM layer into a
+                    signal output, our target. We then compile it with the Adam optimization algorithm and define the
+                    loss to be mean squared error. Next, we fit the model with 20 epochs, the number of passes through
+                    the training set, batch_size=32, the number of training examples used in one iteration,
+                    validation_split=0.2, the training data set asiode for evaluating performance during training
+                    (different from testing), and verbose for console output. The variable history stores training and
+                    validation metrics. We finally can predict using our model on our testing set.</p>
+                <pre><code class="language-python">import tensorflow as tf
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.LSTM(50, activation='relu', input_shape=(X_train.shape[1], X_train.shape[2])))
+model.add(tf.keras.layers.Dense(1))
+model.compile(optimizer='adam', loss='mse')
+history = model.fit(X_train, y_train, epochs=20, batch_size=32, validation_split=0.2, verbose=1)
+y_pred = model.predict(X_test)</pre></code>
+                <p>To display our results, we have to unscale it. You can use the error metrics before unscaling your
+                    results, but for the sake of clarity, I'm going to do it after. We will use scaler.inverse_transform
+                    to unscale our y_test and y_pred arrays.</p>
+                <pre><code class="language-python">target_index = df.columns.get_loc(target)
+y_test_unscaled = np.zeros((len(y_test), df_scaled.shape[1])) 
+y_pred_unscaled = np.zeros((len(y_pred), df_scaled.shape[1]))  
+y_test_unscaled[:, target_index] = y_test.ravel() 
+y_pred_unscaled[:, target_index] = y_pred.ravel() 
+y_test_unscaled = scaler.inverse_transform(y_test_unscaled)[:, target_index] 
+y_pred_unscaled = scaler.inverse_transform(y_pred_unscaled)[:, target_index]
+# Calculate error metrics and plot your unscaled data in a graphing library of your choosing</pre></code>
+                <p class=graph onclick=loadGraph(1)>
+                    Our results are quite good for TMEAN and MSLPMEAN. Note that we are using a different time period
+                    and more past data to forecast than we did with Random Forest or Linear regression, but not
+                    considering that our results are better. However, we struggle on predicting precipitation and wind
+                    direction. There is still little correlation between any of the other variables. We would need more
+                    information to make accurate predictions about features like those two. Take a look through the
+                    graphs, and do remember to zoom in! This test set is larger than in the previous sections.
+                </p>
+                <div class="button-container">
+                    <button class=selector-button onclick="loadSection(3)">&lt;</button>
+                </div>
             </div>
         </div>
         <div class="right-panel">

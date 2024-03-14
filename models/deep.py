@@ -22,7 +22,7 @@ df = df["2004-01-01":]
 
 print(tf.__version__)
 
-features = df.columns # Includes any target
+features = df.columns # Includes target
 scaler = MinMaxScaler()
 df_scaled = pd.DataFrame(scaler.fit_transform(df), columns=features, index=df.index)
 
@@ -34,15 +34,15 @@ def predict(target):
             y.append(df.iloc[i + past_days:i + past_days + predict_days][target].to_numpy())
         return np.array(X), np.array(y)
 
-    
-    X, y = create_sequences(df_scaled, 5, 1)
+    X, y = create_sequences(df_scaled, 10, 1)
     data_length = len(X)
     split= int(data_length * 0.8)
     X_train, X_test = X[:split], X[split:]
     y_train, y_test = y[:split], y[split:]
     
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.LSTM(50, activation='relu', input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(tf.keras.layers.Input(shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(tf.keras.layers.LSTM(50, activation='tanh'))
     model.add(tf.keras.layers.Dense(1))
     model.compile(optimizer='adam', loss='mse')
     history = model.fit(X_train, y_train, epochs=20, batch_size=32, validation_split=0.2, verbose=1)
@@ -65,10 +65,19 @@ def predict(target):
                    text=f'MAE: {mae:.2f}<br>MSE: {mse:.2f}', showarrow=False,
                    font=dict(size=12, color='darkgreen'),
                    align='right', xanchor='right', yanchor='bottom')
-    fig.update_layout(title='Actual vs Predicted', xaxis_title='Date', yaxis_title='Temperature')
-    fig.show()
+    features_list = df.drop([target], axis=1).columns.tolist()  # 
+    first_line_features = ", ".join(features_list[:7]) 
+    second_line_features = ", ".join(features_list[7:]) 
+    fig.add_annotation(x=0, y=0, xref='paper', yref='paper',
+                   text=f'Features:<br>{first_line_features}<br>{second_line_features}',
+                   showarrow=False, font=dict(size=7, color='darkgreen'),
+                   align='left', xanchor='left', yanchor='bottom')
+    fig.add_annotation(x=0, y=0.05, xref='paper', yref='paper',
+                   text=f'Epochs: 20', showarrow=False,
+                   font=dict(size=7, color='darkgreen'),
+                   align='left', xanchor='left', yanchor='bottom')
+    fig.update_layout(title=f'Actual vs Predicted {target}', xaxis_title='Date', yaxis_title=f'{target}')
+    pio.write_html(fig, 'app/static/graphs/deep5.html', config={'responsive': True})
 
-
-
-predict('TMIN')
+predict('WDD')
 
