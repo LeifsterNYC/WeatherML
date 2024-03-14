@@ -1,6 +1,6 @@
 let currentSection = 0;
 let oldCurrentSection = 0;
-let sections = ['about', 'lr', 'lrts', 'rf', 'gbm'];
+let sections = ['about', 'lr', 'lrts', 'rf', 'deep'];
 function loadSection(section) {
     oldCurrentSection = currentSection;
     currentSection = section;
